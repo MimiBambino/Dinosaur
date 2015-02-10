@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <!-- Include Google Maps JS API -->
+        <script type="text/javascript"
+          src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDk66OnnUZGi8ZxkN8sCH6nS8NwODiQ4V4&sensor=false&libraries=places">
+        </script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+        <script type="text/javascript" src="javascripts/knockout.js"></script>
+        <link rel="stylesheet" type="text/css" href="css/styles.css">
+
+    </head>
+    <body>
+      <div id='page'>
+        <div id="header">
+          <div id='selectFavoriteDino' data-bind="fadeVisible: dinoListInstruction">Select a dinosaur from the list.<span class="icon-arrow-down2"></span></div>
+          <button class='hide-list' data-bind="fadeVisible: buttonVisible, click: toggleList, text: buttonText">Hide List</button>
+          <div id='inputInstruction' data-bind="fadeVisible: locationInstruction">Enter your location <span class="icon-arrow-right2"></span></div>
+          <div id="location-search">
+            <input id='cityInput' data-bind="value: location" placeholder="Location">
+          </div>
+          <div id="icons">
+            <a class="icon-github" href="https://github.com/MimiBambino/DinosaurMap" target="_blank"></a>
+            <a class="icon-linkedin" href="https://www.linkedin.com/in/cynthiafussellodonnell" target="_blank"></a>
+          </div>
+          <div data-bind="css: mapError"></div>
+        </div>
+        <div id="toggleDinosInstruction" data-bind="fadeVisible: filterDinoInstruction">Click a legend image to filter by dinosaur type. <span class="icon-arrow-down2"></span></div>
+        <div id='container'>
+          <div id="mapDiv">
+          </div>
+          <div id="legend" data-bind="fadeVisible: showLegend">
+            <h4 id='legend_title'>Legend</h4>
+            <img src="img/manSm.png"><p class='legend_caption'>You</p><br>
+            <hr>
+            <img src="img/blueDino41.png" data-bind='click: toggleDinos.bind($data, "omnivore")'><p class='legend_caption'>Omnivore</p><br><hr>
+            <img src="img/tRex.png" data-bind='click: toggleDinos.bind($data, "carnivore")'><p class='legend_caption'>Meat Eater</p><br><hr>
+            <img src="img/plantEaterSm.png" data-bind='click: toggleDinos.bind($data, "herbivore")'><p class='legend_caption'>Plant Eater</p><br>
+            <button class="hide-legend" data-bind= "fadeVisible: legendClicked, click: removeLegend">Hide Legend</button>
+          </div>
+        </div>
+
+
+          <aside id="dinoListView">
+            <ul id="list" data-bind="foreach: dinoData, fadeVisible: listVisible">
+              <li class="dino" data-bind="text: name, click: $parent.displayThisDino">
+            </ul>
+          </aside>
+
+
+
+      </div>
+      <script src="https://cdn.firebase.com/js/client/2.1.1/firebase.js"></script>
+      <script type="text/javascript" src="javascripts/model.js"></script>
+      <script type="text/javascript" src="javascripts/app.js"></script>
+    </body>
+</html>
