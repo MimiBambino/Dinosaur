@@ -165,8 +165,6 @@ var ViewModel = function() {
 
     // Saves a reference to ViewModel object
     var self = this;
-    self.mapError = ko.observable(false);
-    self.startLoc = new google.maps.LatLng(33.5, 7.6);
 
     // Keeps track of which instructions have been flashed to the user.
     self.locationInstruction = ko.observable(false);
@@ -193,8 +191,23 @@ var ViewModel = function() {
     // Keeps track of any open infowindows.
     self.activeInfowindow = ko.observable();
 
+    /**
+      * Holds the name of the class bound to the error div.
+      * If the google map script fails to load, the self.init() function will
+      * add the class "noMap" which will load a placeholder image
+      * and explain that google maps is unavailable.
+      */
+    self.mapError = "";
+
     self.init = function() {
-        google.maps.event.addDomListener(window, 'load', self.initMap);
+        // Determines if the google object is available
+        if (typeof google == "undefined") {
+            // Adds error class to self.mapError if the google object is unavailable
+            self.mapError = "noMap";
+        } else {
+            // Initates interactive map if the google object is available.
+            google.maps.event.addDomListener(window, 'load', self.initMap);
+        }
     };
 
     /**
@@ -204,6 +217,7 @@ var ViewModel = function() {
      */
     self.initMap = function() {
         //create a new StyledMapType and reference it with the style array
+        self.startLoc = new google.maps.LatLng(33.5, 7.6);
         var bluishStyledMap = new google.maps.StyledMapType(View.bluishMapStyle,
             {name: "Bluish Map"});
         google.maps.visualRefresh = true;
@@ -220,10 +234,7 @@ var ViewModel = function() {
         // Getting map DOM element
         var mapElement = document.getElementById('mapDiv');
         map = new google.maps.Map(mapElement, mapOptions);
-        // Show a placeholder image if map.status is not OK
-        if (map.status != status.OK) {
-            self.mapError(true);
-        }
+
         //relate new mapTypeId to the styledMapType object
         map.mapTypes.set('new_bluish_style', bluishStyledMap);
         //set this new mapTypeId to be displayed
@@ -385,44 +396,46 @@ var ViewModel = function() {
      * and displays the user's marker on the map
      */
     self.getLocation = ko.computed(function() {
-        geocoder = new google.maps.Geocoder();
-        geocoder.geocode( {address: self.location()}, function(results,status) {
-            //check if geocode was successful
-            if (status === google.maps.GeocoderStatus.OK) {
-                // if user's icon is already displayed, remove it from the screen
-                if (person) {
-                    personMarker.setMap(null);
+        if (typeof google != "undefined") {
+            geocoder = new google.maps.Geocoder();
+            geocoder.geocode( {address: self.location()}, function(results,status) {
+                //check if geocode was successful
+                if (status === google.maps.GeocoderStatus.OK) {
+                    // if user's icon is already displayed, remove it from the screen
+                    if (person) {
+                        personMarker.setMap(null);
+                    }
+                    // prevent instructions from appearing if used searched already
+                if (self.search === false) {
+                    self.filterDinoInstruction(true);
                 }
-                // prevent instructions from appearing if used searched already
-            if (self.search === false) {
-                self.filterDinoInstruction(true);
-            }
-            // set true to indicate a search has been performed and to display markers
-            self.search = true;
-            // take the first result from the returned array
-            var loc = results[0].geometry.location;
-            //center map and display marker
-            map.setCenter(loc);
-            map.setZoom(5);
-            //self.createDinoMarkers(self.dinoList);
-            //self.newDinoMarker();
-            personMarker = new google.maps.Marker({
-                map: map,
-                position: loc,
-                icon: 'img/manSm.png'
+                // set true to indicate a search has been performed and to display markers
+                self.search = true;
+                // take the first result from the returned array
+                var loc = results[0].geometry.location;
+                //center map and display marker
+                map.setCenter(loc);
+                map.setZoom(5);
+                //self.createDinoMarkers(self.dinoList);
+                //self.newDinoMarker();
+                personMarker = new google.maps.Marker({
+                    map: map,
+                    position: loc,
+                    icon: 'img/manSm.png'
+                });
+                self.location("");
+                self.locationInstruction(false);
+                self.showLegend(true);
+                // this indicates that the user's icon is displayed
+                person = true;
+                return loc;
+                }
+                else if (status != google.maps.places.PlacesServiceStatus.OK) {
+            // If no location found based on search
+                return self.startLoc;
+                }
             });
-            self.location("");
-            self.locationInstruction(false);
-            self.showLegend(true);
-            // this indicates that the user's icon is displayed
-            person = true;
-            return loc;
-            }
-            else if (status != google.maps.places.PlacesServiceStatus.OK) {
-        // If no location found based on search
-            return self.startLoc;
-            }
-        });
+        }
     });
 
     /**

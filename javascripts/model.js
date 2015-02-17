@@ -1,3 +1,9 @@
+/**
+  * A backup copy of dinosaur data.
+  * This data will be called from ViewModel.fetchFirebase() in the event that
+  * Firebase.io is unreachable.
+  */
+
 var dinoData = [
         {
             "name": "Allosaurus",
