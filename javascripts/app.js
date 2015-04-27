@@ -21,11 +21,18 @@ var View = {
         var beginDescription = result.index;
         var description = paragraph.substring(beginDescription, beginDescription + 250);
         paragraph = name + " " + description;
+        if (infowindow.title == "Balaur") {
+            var link = "Balaur_(dinosaur)";
+        } else if (infowindow.title == "Saturnalia") {
+            var link = "Saturnalia_(dinosaur)";
+        } else {
+            var link = infowindow.title;
+        }
 
         var content = "<div class='infoWindow'><h3>Hi, my name is <strong>" +
                     infowindow.title + "</strong>!</h3></div><div>" +
                     paragraph + "...</p></div><div>For more see: <a href='http://www.wikipedia.org/wiki/"+
-                    infowindow.title + "' target='_blank'>Wikipedia</a></div>";
+                    link + "' target='_blank'>Wikipedia</a></div>";
         return content;
     },
     errorContent: function(infowindow) {
@@ -376,6 +383,7 @@ var ViewModel = function() {
         success: function(response) {
             // Parses the response and sets infobox content
             infowindow.setContent(View.createContent(infowindow, response));
+            self.dinoImageRequest(infowindow, response);
         },
         error: function(response) {
             infowindow.setContent(View.errorContent(infowindow));
@@ -387,6 +395,13 @@ var ViewModel = function() {
             }
         });
     };
+
+    self.dinoImageRequest = function(infowindow, response) {
+        var keys = Object.keys(response.query.pages);
+        var pageid = parseInt(keys[0], 10);
+        var url = "http://en.wikipedia.org/w/api.php?action=query&prop=images&format=json";
+        console.log(pageid);
+    }
 
     self.location = ko.observable("");
 
