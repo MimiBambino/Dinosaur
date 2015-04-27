@@ -32,7 +32,7 @@ var View = {
         var content = "<div class='infoWindow'><h3>Hi, my name is <strong>" +
                     infowindow.title + "</strong>!</h3></div><div>" +
                     paragraph + "...</p></div><div>For more see: <a href='http://www.wikipedia.org/wiki/"+
-                    link + "' target='_blank'>Wikipedia</a></div>";
+                    link + "' target='_blank'>Wikipedia</a></div><div id='images' data-bind='click: togglePhotoDisplay'>See Images</div>";
         return content;
     },
     errorContent: function(infowindow) {
@@ -360,6 +360,47 @@ var ViewModel = function() {
             }
         }
     };
+    // Determine whether to show photo gallery
+    self.viewingPhotos = ko.observable(false);
+
+    // If viewing photo gallery, close it.  Otherwise, open it.
+    // Map should not be draggable while viewing photos.
+    self.togglePhotoDisplay = function() {
+        if (self.viewingPhotos()) {
+            self.viewingPhotos(false);
+            map.setOptions({
+                draggable: true
+            });
+        } else {
+            self.viewingPhotos(true);
+            map.setOptions({
+                draggable: false
+            });
+        }
+        self.resizePhoto();
+    };
+
+    // An index of dinosaur's photo array.  The photo at this index
+    // will be displayed on screen.
+    self.chosenPhotoIndex = ko.observable(0);
+
+    // Photo to display when viewingPhotos is true.
+    self.chosenPhoto = ko.computed(function () {
+        if (self.activeInfowindow()) {
+            return self.activeInfowindow().instagrams()[self.chosenPhotoIndex()];
+        }
+        return null;
+    });
+
+    // Should these be resized?
+    self.resizePhoto = function(){
+        if ($(window).height() < $(window).width()) {
+            self.photoDimensionValue($(window).height() - 160);
+        } else {
+            self.photoDimensionValue(0.9 * $(window).width());
+        }
+    };
+
 
     /**
      * Ajax call to Wikipedia to get content for infowindows

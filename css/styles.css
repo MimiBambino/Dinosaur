@@ -514,6 +514,13 @@ html, body, #page {
   z-index: 100;
 }
 
+#images {
+  position: absolute;
+  right: 0;
+  bottom: 4px;
+  color: blue;
+}
+
 .icon-github, .icon-linkedin {
   margin: 5px;
 }
